@@ -1,0 +1,106 @@
+from flask import Flask, render_template, request, redirect, url_for, flash
+import pymysql
+from datetime import datetime
+
+app = Flask(__name__)
+app.secret_key = 'some_random_key_2025'  # Replace with any string (e.g., your name + year)
+
+# MySQL Configuration using PyMySQL
+db = pymysql.connect(host='localhost', user='root', password='', db='hotel_db')
+cursor = db.cursor()
+
+# Helper function to get cursor
+def get_cursor():
+    return db.cursor()
+
+# Home Page
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+# Dashboard (Reports)
+@app.route('/dashboard')
+def dashboard():
+    cur = get_cursor()
+    cur.execute("SELECT COUNT(*) FROM rooms WHERE status = 'occupied'")
+    occupied = cur.fetchone()[0]
+    cur.execute("SELECT SUM(amount) FROM billings WHERE status = 'paid'")
+    revenue = cur.fetchone()[0] or 0
+    cur.execute("SELECT * FROM rooms LIMIT 5")
+    rooms = cur.fetchall()
+    cur.close()
+    return render_template('dashboard.html', occupied=occupied, revenue=revenue, rooms=rooms)
+
+# Room Reservations
+@app.route('/reservations', methods=['GET', 'POST'])
+def reservations():
+    cur = get_cursor()
+    if request.method == 'POST':
+        guest_id = 1  # Hardcoded for demo
+        room_id = request.form['room_id']
+        check_in = request.form['check_in']
+        check_out = request.form['check_out']
+        cur.execute("INSERT INTO reservations (guest_id, room_id, check_in, check_out) VALUES (%s, %s, %s, %s)", 
+                    (guest_id, room_id, check_in, check_out))
+        cur.execute("UPDATE rooms SET status = 'occupied' WHERE id = %s", (room_id,))
+        db.commit()
+        flash('Room booked successfully!')
+    cur.execute("SELECT * FROM rooms WHERE status = 'available'")
+    available_rooms = cur.fetchall()
+    cur.close()
+    return render_template('reservations.html', rooms=available_rooms)
+
+# Guest Management
+@app.route('/guests', methods=['GET', 'POST'])
+def guests():
+    cur = get_cursor()
+    if request.method == 'POST':
+        name = request.form['name']
+        contact = request.form['contact']
+        id_proof = request.form['id_proof']
+        preferences = request.form['preferences']
+        cur.execute("INSERT INTO guests (name, contact, id_proof, preferences) VALUES (%s, %s, %s, %s)", 
+                    (name, contact, id_proof, preferences))
+        db.commit()
+        flash('Guest added successfully!')
+    cur.execute("SELECT * FROM guests")
+    guest_list = cur.fetchall()
+    cur.close()
+    return render_template('guests.html', guests=guest_list)
+
+# Staff Management
+@app.route('/staff', methods=['GET', 'POST'])
+def staff():
+    cur = get_cursor()
+    if request.method == 'POST':
+        name = request.form['name']
+        role = request.form['role']
+        schedule = request.form['schedule']
+        cur.execute("INSERT INTO staff (name, role, schedule) VALUES (%s, %s, %s)", 
+                    (name, role, schedule))
+        db.commit()
+        flash('Staff added successfully!')
+    cur.execute("SELECT * FROM staff")
+    staff_list = cur.fetchall()
+    cur.close()
+    return render_template('staff.html', staff=staff_list)
+
+# Billing System
+@app.route('/billing/<int:res_id>', methods=['GET', 'POST'])
+def billing(res_id):
+    cur = get_cursor()
+    if request.method == 'POST':
+        amount = request.form['amount']
+        details = request.form['details']
+        status = request.form['status']
+    cur.execute("INSERT INTO billings (reservation_id, amount, status, details) VALUES (%s, %s, %s, %s)", 
+                (res_id, amount, status, details))
+    db.commit()
+    flash('Bill created successfully!')
+    cur.execute("SELECT * FROM reservations WHERE id = %s", (res_id,))
+    reservation = cur.fetchone()
+    cur.close()
+    return render_template('billing.html', reservation=reservation)
+
+if __name__ == '__main__':
+    app.run(debug=True)
