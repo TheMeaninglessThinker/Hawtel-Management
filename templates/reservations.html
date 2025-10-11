@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="w3-container w3-padding-64">
+  <h2>Manage Reservations and Rooms</h2>
+  <!-- Add Room Form -->
+  <h3>Add New Room</h3>
+  <form method="POST">
+    <input type="text" name="room_type" placeholder="Room Type" class="w3-input w3-border" required>
+    <select name="status" class="w3-select w3-border">
+      <option value="available">Available</option>
+      <option value="occupied">Occupied</option>
+    </select>
+    <input type="number" name="price" placeholder="Price" class="w3-input w3-border" step="0.01" required>
+    <button type="submit" class="w3-button w3-teal w3-margin-top">Add Room</button>
+  </form>
+
+  <!-- Book Room Form -->
+  <h3>Book a Room</h3>
+  <form method="POST">
+    <select name="guest_id" class="w3-select w3-border">
+      {% for guest in guests %}
+      <option value="{{ guest[0] }}">{{ guest[1] }}</option>
+      {% endfor %}
+    </select>
+    <select name="book_room_id" class="w3-select w3-border">
+      {% for room in rooms %}
+      <option value="{{ room[0] }}">{{ room[1] }} - ${{ room[3] }} ({{ room[2] }})</option>
+      {% endfor %}
+    </select>
+    <input type="date" name="check_in" class="w3-input w3-border" required>
+    <input type="date" name="check_out" class="w3-input w3-border" required>
+    <button type="submit" class="w3-button w3-teal w3-margin-top">Book Room</button>
+  </form>
+
+  <!-- Room List with Delete -->
+  <h3>Room List</h3>
+  <ul>
+    {% for room in rooms %}
+    <li>
+      {{ room[1] }} - ${{ room[3] }} ({{ room[2] }})
+      <form method="POST" style="display:inline;">
+        <input type="hidden" name="delete_room_id" value="{{ room[0] }}">
+        <button type="submit" class="w3-button w3-red w3-small" onclick="return confirm('Are you sure?')">Delete</button>
+      </form>
+    </li>
+    {% endfor %}
+  </ul>
+</div>
+{% endblock %}

@@ -1,9 +1,9 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for
 import pymysql
 from datetime import datetime
 
 app = Flask(__name__)
-app.secret_key = 'some_random_key_2025'  # Replace with any string (e.g., your name + year)
+app.secret_key = 'some_random_key_2025'  # Required for potential flash use
 
 # MySQL Configuration using PyMySQL
 db = pymysql.connect(host='localhost', user='root', password='', db='hotel_db')
@@ -25,44 +25,71 @@ def dashboard():
     cur.execute("SELECT COUNT(*) FROM rooms WHERE status = 'occupied'")
     occupied = cur.fetchone()[0]
     cur.execute("SELECT SUM(amount) FROM billings WHERE status = 'paid'")
-    revenue = cur.fetchone()[0] or 0
+    revenue = cur.fetchone()[0] or 0.00  # Ensure float for decimal handling
     cur.execute("SELECT * FROM rooms LIMIT 5")
     rooms = cur.fetchall()
     cur.close()
     return render_template('dashboard.html', occupied=occupied, revenue=revenue, rooms=rooms)
 
-# Room Reservations
+# Room Reservations and Add Rooms
 @app.route('/reservations', methods=['GET', 'POST'])
 def reservations():
     cur = get_cursor()
     if request.method == 'POST':
-        guest_id = 1  # Hardcoded for demo
-        room_id = request.form['room_id']
-        check_in = request.form['check_in']
-        check_out = request.form['check_out']
-        cur.execute("INSERT INTO reservations (guest_id, room_id, check_in, check_out) VALUES (%s, %s, %s, %s)", 
-                    (guest_id, room_id, check_in, check_out))
-        cur.execute("UPDATE rooms SET status = 'occupied' WHERE id = %s", (room_id,))
-        db.commit()
-        flash('Room booked successfully!')
-    cur.execute("SELECT * FROM rooms WHERE status = 'available'")
-    available_rooms = cur.fetchall()
+        if 'room_type' in request.form:  # Add new room
+            room_type = request.form['room_type']
+            status = request.form['status']
+            price = request.form['price']
+            cur.execute("INSERT INTO rooms (type, status, price) VALUES (%s, %s, %s)", 
+                        (room_type, status, price))
+            db.commit()
+        elif 'book_room_id' in request.form:  # Book a room
+            guest_id = request.form['guest_id']
+            room_id = request.form['book_room_id']
+            check_in = request.form['check_in']
+            check_out = request.form['check_out']
+            cur.execute("INSERT INTO reservations (guest_id, room_id, check_in, check_out) VALUES (%s, %s, %s, %s)", 
+                        (guest_id, room_id, check_in, check_out))
+            cur.execute("UPDATE rooms SET status = 'occupied' WHERE id = %s", (room_id,))
+            db.commit()
+        elif 'delete_room_id' in request.form:  # Delete room
+            room_id = request.form['delete_room_id']
+            try:
+                # Delete related reservations first
+                cur.execute("DELETE FROM reservations WHERE room_id = %s", (room_id,))
+                cur.execute("DELETE FROM rooms WHERE id = %s", (room_id,))
+                db.commit()
+            except pymysql.err.IntegrityError as e:
+                print(f"Error deleting room: {e}")
+    cur.execute("SELECT * FROM rooms")
+    all_rooms = cur.fetchall()
+    cur.execute("SELECT * FROM guests")
+    guests = cur.fetchall()
     cur.close()
-    return render_template('reservations.html', rooms=available_rooms)
+    return render_template('reservations.html', rooms=all_rooms, guests=guests)
 
-# Guest Management
+# Guest Management (Add and Delete)
 @app.route('/guests', methods=['GET', 'POST'])
 def guests():
     cur = get_cursor()
     if request.method == 'POST':
-        name = request.form['name']
-        contact = request.form['contact']
-        id_proof = request.form['id_proof']
-        preferences = request.form['preferences']
-        cur.execute("INSERT INTO guests (name, contact, id_proof, preferences) VALUES (%s, %s, %s, %s)", 
-                    (name, contact, id_proof, preferences))
-        db.commit()
-        flash('Guest added successfully!')
+        if 'delete_id' in request.form:  # Delete guest
+            guest_id = request.form['delete_id']
+            try:
+                # Delete related reservations first
+                cur.execute("DELETE FROM reservations WHERE guest_id = %s", (guest_id,))
+                cur.execute("DELETE FROM guests WHERE id = %s", (guest_id,))
+                db.commit()
+            except pymysql.err.IntegrityError as e:
+                print(f"Error deleting guest: {e}")
+        else:  # Add guest
+            name = request.form['name']
+            contact = request.form['contact']
+            id_proof = request.form['id_proof']
+            preferences = request.form['preferences']
+            cur.execute("INSERT INTO guests (name, contact, id_proof, preferences) VALUES (%s, %s, %s, %s)", 
+                        (name, contact, id_proof, preferences))
+            db.commit()
     cur.execute("SELECT * FROM guests")
     guest_list = cur.fetchall()
     cur.close()
@@ -79,7 +106,6 @@ def staff():
         cur.execute("INSERT INTO staff (name, role, schedule) VALUES (%s, %s, %s)", 
                     (name, role, schedule))
         db.commit()
-        flash('Staff added successfully!')
     cur.execute("SELECT * FROM staff")
     staff_list = cur.fetchall()
     cur.close()
@@ -93,14 +119,15 @@ def billing(res_id):
         amount = request.form['amount']
         details = request.form['details']
         status = request.form['status']
-    cur.execute("INSERT INTO billings (reservation_id, amount, status, details) VALUES (%s, %s, %s, %s)", 
-                (res_id, amount, status, details))
-    db.commit()
-    flash('Bill created successfully!')
+        cur.execute("INSERT INTO billings (reservation_id, amount, status, details) VALUES (%s, %s, %s, %s)", 
+                    (res_id, amount, status, details))
+        db.commit()
     cur.execute("SELECT * FROM reservations WHERE id = %s", (res_id,))
     reservation = cur.fetchone()
+    cur.execute("SELECT SUM(amount) FROM billings WHERE reservation_id = %s AND status = 'paid'", (res_id,))
+    total_bill = cur.fetchone()[0] or 0.00
     cur.close()
-    return render_template('billing.html', reservation=reservation)
+    return render_template('billing.html', reservation=reservation, total_bill=total_bill)
 
 if __name__ == '__main__':
     app.run(debug=True)
