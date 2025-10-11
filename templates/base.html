@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Hotel Management System</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/5/w3.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<style>body {font-family: "Lato", sans-serif} .mySlides {display: none}</style>
+</head>
+<body>
+<div class="w3-top">
+  <div class="w3-bar w3-black w3-card">
+    <a href="#" class="w3-bar-item w3-button w3-padding-large">HOME</a>
+    <a href="{{ url_for('reservations') }}" class="w3-bar-item w3-button w3-padding-large w3-hide-small">RESERVATIONS</a>
+    <a href="{{ url_for('guests') }}" class="w3-bar-item w3-button w3-padding-large w3-hide-small">GUESTS</a>
+    <a href="{{ url_for('staff') }}" class="w3-bar-item w3-button w3-padding-large w3-hide-small">STAFF</a>
+    <a href="{{ url_for('dashboard') }}" class="w3-bar-item w3-button w3-padding-large w3-hide-small">DASHBOARD</a>
+  </div>
+</div>
+<div class="w3-content" style="max-width:2000px;margin-top:46px">
+  <div class="mySlides w3-display-container w3-center">
+    <img src="https://www.w3schools.com/w3images/la.jpg" style="width:100%">
+    <div class="w3-display-bottommiddle w3-container w3-text-white w3-padding-32">
+      <h3>Welcome to Our Hotel</h3><p>Manage your stay!</p>
+    </div>
+  </div>
+  <!-- Add 2 more slides if desired -->
+</div>
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <div class="w3-container w3-teal">
+      {% for message in messages %}
+        <p>{{ message }}</p>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+{% block content %}{% endblock %}
+<footer class="w3-container w3-padding-64 w3-center w3-opacity w3-light-grey">
+  <p>Hotel Management - Class XII BS1</p>
+</footer>
+<script>
+var myIndex = 0; carousel();
+function carousel() {
+  var i;
+  var x = document.getElementsByClassName("mySlides");
+  for (i = 0; i < x.length; i++) x[i].style.display = "none";
+  myIndex++; if (myIndex > x.length) myIndex = 1;
+  x[myIndex-1].style.display = "block";
+  setTimeout(carousel, 4000);
+}
+</script>
+</body>
+</html>
