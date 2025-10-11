@@ -12,7 +12,7 @@
 <body>
 <div class="w3-top">
   <div class="w3-bar w3-black w3-card">
-    <a href="#" class="w3-bar-item w3-button w3-padding-large">HOME</a>
+    <a href="{{url_for('index'}}" class="w3-bar-item w3-button w3-padding-large">HOME</a>
     <a href="{{ url_for('reservations') }}" class="w3-bar-item w3-button w3-padding-large w3-hide-small">RESERVATIONS</a>
     <a href="{{ url_for('guests') }}" class="w3-bar-item w3-button w3-padding-large w3-hide-small">GUESTS</a>
     <a href="{{ url_for('staff') }}" class="w3-bar-item w3-button w3-padding-large w3-hide-small">STAFF</a>
@@ -53,4 +53,5 @@ function carousel() {
 }
 </script>
 </body>
+
 </html>
