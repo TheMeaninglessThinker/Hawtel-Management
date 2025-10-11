@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head><title>Rooms</title></head>
+<body>
+<h2>All Rooms</h2>
+<table border="1">
+<tr><th>Room No</th><th>Type</th><th>Price</th><th>Status</th></tr>
+{% for r in rooms %}
+<tr>
+  <td>{{ r.room_no }}</td>
+  <td>{{ r.room_type }}</td>
+  <td>{{ r.price_per_day }}</td>
+  <td>{{ r.status }}</td>
+</tr>
+{% endfor %}
+</table>
+
+<h3>Add New Room</h3>
+<form action="/add_room" method="POST">
+  Room No: <input name="room_no"><br>
+  Type: <input name="room_type"><br>
+  Price: <input name="price"><br>
+  <button type="submit">Add Room</button>
+</form>
+
+<p><a href="/">Back to Home</a></p>
+</body>
+</html>

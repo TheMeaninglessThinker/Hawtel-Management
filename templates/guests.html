@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head><title>Guests</title></head>
+<body>
+<h2>All Guests</h2>
+<table border="1">
+<tr><th>ID</th><th>Name</th><th>Contact</th><th>ID Proof</th></tr>
+{% for g in guests %}
+<tr>
+  <td>{{ g.guest_id }}</td>
+  <td>{{ g.name }}</td>
+  <td>{{ g.contact }}</td>
+  <td>{{ g.id_proof }}</td>
+</tr>
+{% endfor %}
+</table>
+
+<h3>Add New Guest</h3>
+<form action="/add_guest" method="POST">
+  Name: <input name="name"><br>
+  Contact: <input name="contact"><br>
+  ID Proof: <input name="id_proof"><br>
+  <button type="submit">Add Guest</button>
+</form>
+
+<p><a href="/">Back to Home</a></p>
+</body>
+</html>
