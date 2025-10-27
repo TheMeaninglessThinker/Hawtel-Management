@@ -15,10 +15,9 @@
     <tr>
       <th>ID</th>
       <th>Name</th>
-      <th>Role</th>
-      <th>Schedule</th>
       <th>Start Time</th>
       <th>End Time</th>
+      <th>Role</th>
       <th>Action</th>
     </tr>
     {% for s in staff %}
@@ -28,7 +27,6 @@
       <td>{{ s[2] }}</td>
       <td>{{ s[3] }}</td>
       <td>{{ s[4] }}</td>
-      <td>{{ s[5] }}</td>
       <td>
         <form method="POST" style="display:inline">
           <input type="hidden" name="delete_staff_id" value="{{ s[0] }}">

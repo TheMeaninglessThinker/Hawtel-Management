@@ -14,7 +14,7 @@ CREATE TABLE rooms (
 CREATE TABLE guests (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
-    contact int,
+    contact VARCHAR(20),
     id_proof VARCHAR(50),
     preferences TEXT
 );
@@ -48,8 +48,8 @@ CREATE TABLE billings (
 );
 
 INSERT INTO rooms (type, status, price) VALUES 
-('Single', 'available', 100.00),
-('Double', 'available', 150.00);
+('Normal (101)', 'available', 100.00),
+('Deluxe (202)', 'available', 150.00);
 
 INSERT INTO guests (name, contact, id_proof, preferences) VALUES 
 ('Alex Clay', '1450302007', 'Passport_1', 'Non-smoking');

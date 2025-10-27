@@ -7,9 +7,7 @@ app = Flask(__name__)
 app.secret_key = 'some_random_key_2025'  #Useless. Removing it stops the program
 app.config['MESSAGE_FLASHING_OPTIONS'] = {'duration': 5}
 
-#pwd = "abcd"
-#if inp == "Password":
-#   pwd = ""
+
 
 db = pymysql.connect(host='localhost', user='root', password='', db='hotel_db')
 cursor = db.cursor()
@@ -31,18 +29,17 @@ def reserve_date_check(check_in, check_out):
 
     try:
         if indate <= today:
-            print("Yeah, I will let you in when technoblade dies, that is NEVERRRRRR");
+            
             return False;
         
         if outdate<=indate:
-            print("That is possible when techno dies, that is it is impossible.")
+            
             return False;
         
         return True;
 
     
     except ValueError as e:
-        print("DATE NO NOO NOO YOU INPUT.")
         return False
     
     cur.close()
@@ -59,6 +56,14 @@ def reserve_check_status(room_id):
     return True
 
 
+def number_validity(number):
+    
+    if number.isdigit() == True:
+        if len(number) != 10:
+            return False;
+        else:
+            return True;
+    return False;
 
 @app.route('/dashboard')
 def dashboard():
@@ -102,9 +107,9 @@ def reservations():
                 db.commit()
             
             if f== False:
-                flash("Teri mkc galat date bharr diya lmfaooooooooooo")
+                flash("Please input valid check-in and check-out dates")
             if t == False:
-                flash("Ky kar raha hai tu, kisi aur ke room mai occupy hona hai kya hehehehehe")
+                flash("Please choose an available room, the one you have chosen is occupied.")
 
             
 
@@ -146,11 +151,16 @@ def guests():
         else:  # Add guest
             name = request.form['name']
             contact = request.form['contact'] #Exception handle here bhaiiiiiiii
-            id_proof = request.form['id_proof']
-            preferences = request.form['preferences']
-            cur.execute("INSERT INTO guests (name, contact, id_proof, preferences) VALUES (%s, %s, %s, %s)", 
-                        (name, int(contact), id_proof, preferences))
-            db.commit()
+            p = number_validity(contact)
+            if p == True:
+
+                id_proof = request.form['id_proof']
+                preferences = request.form['preferences']
+                cur.execute("INSERT INTO guests (name, contact, id_proof, preferences) VALUES (%s, %s, %s, %s)", 
+                            (name, int(contact), id_proof, preferences))
+                db.commit()
+            else:
+                flash("Please input a valid contact number")
     cur.execute("SELECT * FROM guests")
     guest_list = cur.fetchall()
     cur.close()
@@ -244,5 +254,5 @@ if __name__ == '__main__':
     app.run(debug=True)
 
 
-#Things to fix: Revenue being shown is not working well.
+#Things to fix: The contact number of the user can be less than 10.
 #The code is a mess, it is hard to navigate. 
