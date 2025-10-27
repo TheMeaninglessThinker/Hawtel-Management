@@ -58,7 +58,7 @@ THINGS TO FIX:
 
 1. DATE of reservation//
 2. Remove revenue portion//
-3. Rooms wala different tab
+3. Rooms wala different tab//
 4. Do not allow occupied rooms to be occupied again lol//
 5. staff: Replace schedule with start and end time integers.
 6. make date exception handling.//
