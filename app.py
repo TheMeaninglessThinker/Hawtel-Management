@@ -3,8 +3,27 @@ import pymysql
 from datetime import datetime,date
 
 
+app = Flask(__name__)
+app.secret_key = 'some_random_key_2025'  #Useless. Removing it stops the program
+app.config['MESSAGE_FLASHING_OPTIONS'] = {'duration': 5}
 
-def reserve(check_in, check_out):
+#pwd = "abcd"
+#if inp == "Password":
+#   pwd = ""
+
+db = pymysql.connect(host='localhost', user='root', password='', db='hotel_db')
+cursor = db.cursor()
+
+#THE CURSOR!!!!!!! YOOOOOOO
+def get_cursor():
+    return db.cursor()
+
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+def reserve_date_check(check_in, check_out):
     f = True;
     indate = datetime.strptime(check_in,"%Y-%m-%d").date()
     outdate = datetime.strptime(check_out,"%Y-%m-%d").date()
@@ -27,26 +46,16 @@ def reserve(check_in, check_out):
         return False
         
 
-
-app = Flask(__name__)
-app.secret_key = 'some_random_key_2025'  #Useless. Removing it stops the program
-app.config['MESSAGE_FLASHING_OPTIONS'] = {'duration': 5}
-
-#pwd = "abcd"
-#if inp == "Password":
-#   pwd = ""
-
-db = pymysql.connect(host='localhost', user='root', password='', db='hotel_db')
-cursor = db.cursor()
-
-#THE CURSOR!!!!!!! YOOOOOOO
-def get_cursor():
-    return db.cursor()
+def reserve_check_status(room_id):
+    cur = get_cursor()
+    cur.execute("SELECT status from rooms where id = %s",(room_id))
+    status = cur.fetchone()[0]
+    if status =="occupied":
+        return False
+        
+    return True
 
 
-@app.route('/')
-def index():
-    return render_template('index.html')
 
 @app.route('/dashboard')
 def dashboard():
@@ -83,18 +92,26 @@ def reservations():
         elif 'book_room_id' in request.form:  # Book a room
             guest_id = request.form['guest_id']
             room_id = request.form['book_room_id']
-            check_in = request.form['check_in']
+            check_in = request .form['check_in']
             check_out = request.form['check_out']
+            
 
-            f = reserve(check_in, check_out)
-            if f == True:
+            f = reserve_date_check(check_in, check_out)
+            t= reserve_check_status(room_id)
+
+            
+            if f == True and t == True:
+
                 cur.execute("INSERT INTO reservations (guest_id, room_id, check_in, check_out) VALUES (%s, %s, %s, %s)", 
                         (guest_id, room_id, check_in, check_out))
                 cur.execute("UPDATE rooms SET status = 'occupied' WHERE id = %s", (room_id,))
 
                 db.commit()
-            else:
+            
+            if f== False:
                 flash("Teri mkc galat date bharr diya lmfaooooooooooo")
+            if t == False:
+                flash("Ky kar raha hai tu, kisi aur ke room mai occupy hona hai kya hehehehehe")
 
             
 
