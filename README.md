@@ -23,8 +23,8 @@ CREATE TABLE reservations (
     id INT AUTO_INCREMENT PRIMARY KEY,
     guest_id INT,
     room_id INT,
-    check_in DATE NOT NULL,
-    check_out DATE NOT NULL,
+    check_in DATE NOT NULL CHECK(check_in>CURRENT_DATE),
+    check_out DATE NOT NULL CHECK(check_out>check_in),
     status ENUM('booked', 'cancelled') DEFAULT 'booked',
     FOREIGN KEY (guest_id) REFERENCES guests(id),
     FOREIGN KEY (room_id) REFERENCES rooms(id)
@@ -60,5 +60,6 @@ THINGS TO FIX:
 2. Remove revenue portion
 3. Rooms wala different tab
 4. Do not allow occupied rooms to be occupied again lol
-5. staff: Make date data type for schedule
+5. staff: Replace schedule with start and end time integers.
 6. make date exception handling.
+

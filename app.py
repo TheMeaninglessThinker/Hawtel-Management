@@ -1,11 +1,36 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for,flash
 import pymysql
-from datetime import datetime
+from datetime import datetime,date
 
+
+
+def reserve(check_in, check_out):
+    f = True;
+    indate = datetime.strptime(check_in,"%Y-%m-%d").date()
+    outdate = datetime.strptime(check_out,"%Y-%m-%d").date()
+    today = date.today()
+
+    try:
+        if indate <= today:
+            print("Yeah, I will let you in when technoblade dies, that is NEVERRRRRR");
+            return False;
+        
+        if outdate<=indate:
+            print("That is possible when techno dies, that is it is impossible.")
+            return False;
+        
+        return True;
+
+    
+    except ValueError as e:
+        print("DATE NO NOO NOO YOU INPUT.")
+        return False
+        
 
 
 app = Flask(__name__)
 app.secret_key = 'some_random_key_2025'  #Useless. Removing it stops the program
+app.config['MESSAGE_FLASHING_OPTIONS'] = {'duration': 5}
 
 #pwd = "abcd"
 #if inp == "Password":
@@ -35,6 +60,8 @@ def dashboard():
     cur.close()
     return render_template('dashboard.html', occupied=occupied, revenue=revenue, rooms=rooms)
 
+
+
 #:( So muchhhh timeeeeee wasteeeed in this. DO NOT TOUCH, IT STOPS WORKING IF YOU DO.
 @app.route('/reservations', methods=['GET', 'POST'])
 
@@ -59,11 +86,17 @@ def reservations():
             check_in = request.form['check_in']
             check_out = request.form['check_out']
 
-            cur.execute("INSERT INTO reservations (guest_id, room_id, check_in, check_out) VALUES (%s, %s, %s, %s)", 
+            f = reserve(check_in, check_out)
+            if f == True:
+                cur.execute("INSERT INTO reservations (guest_id, room_id, check_in, check_out) VALUES (%s, %s, %s, %s)", 
                         (guest_id, room_id, check_in, check_out))
-            cur.execute("UPDATE rooms SET status = 'occupied' WHERE id = %s", (room_id,))
+                cur.execute("UPDATE rooms SET status = 'occupied' WHERE id = %s", (room_id,))
 
-            db.commit()
+                db.commit()
+            else:
+                flash("Teri mkc galat date bharr diya lmfaooooooooooo")
+
+            
 
 
         elif 'delete_room_id' in request.form:  # Delete room
