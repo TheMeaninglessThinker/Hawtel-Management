@@ -162,12 +162,19 @@ def guests():
 def staff():
     cur = get_cursor()
     if request.method == 'POST':
-        name = request.form['name']
-        role = request.form['role']
-        schedule = request.form['schedule']
-        cur.execute("INSERT INTO staff (name, role, schedule) VALUES (%s, %s, %s)", 
-                    (name, role, schedule))
-        db.commit()
+        if 'delete_staff_id' in request.form:
+            staff_id = request.form['delete_staff_id']
+            cur.execute("DELETE FROM staff WHERE id = %s", (staff_id,))
+            db.commit()
+            flash("Staff deleted.")
+        else:
+            name = request.form['name']
+            role = request.form['role']
+            start_time = request.form['start_time']
+            end_time = request.form['end_time']
+            cur.execute("INSERT INTO staff (name, role, start_time,end_time) VALUES (%s, %s, %s,%s)", 
+                        (name, role, start_time,end_time))
+            db.commit()
 
     cur.execute("SELECT * FROM staff")
     staff_list = cur.fetchall()

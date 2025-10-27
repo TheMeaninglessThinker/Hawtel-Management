@@ -23,8 +23,8 @@ CREATE TABLE reservations (
     id INT AUTO_INCREMENT PRIMARY KEY,
     guest_id INT,
     room_id INT,
-    check_in DATE NOT NULL CHECK(check_in>CURRENT_DATE),
-    check_out DATE NOT NULL CHECK(check_out>check_in),
+    check_in DATE NOT NULL,
+    check_out DATE NOT NULL,
     status ENUM('booked', 'cancelled') DEFAULT 'booked',
     FOREIGN KEY (guest_id) REFERENCES guests(id),
     FOREIGN KEY (room_id) REFERENCES rooms(id)
@@ -33,8 +33,9 @@ CREATE TABLE reservations (
 CREATE TABLE staff (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
-    role VARCHAR(50),
-    schedule TEXT
+    start_time TIME,
+    end_time TIME,
+    role VARCHAR(50)
 );
 
 CREATE TABLE billings (
@@ -54,14 +55,15 @@ INSERT INTO guests (name, contact, id_proof, preferences) VALUES
 ('Alex Clay', '1450302007', 'Passport_1', 'Non-smoking');
 
 
+
 THINGS TO FIX:
 
 1. DATE of reservation//
 2. Remove revenue portion//
 3. Rooms wala different tab//
 4. Do not allow occupied rooms to be occupied again lol//
-5. staff: Replace schedule with start and end time integers.
+5. staff: Replace schedule with start and end time integers. -- 
 6. make date exception handling.//
-7. login page
-8. Guest no multiple
+7. login page. 
+8. Guest no multiple.
 
