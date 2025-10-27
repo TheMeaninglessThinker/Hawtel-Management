@@ -44,6 +44,8 @@ def reserve_date_check(check_in, check_out):
     except ValueError as e:
         print("DATE NO NOO NOO YOU INPUT.")
         return False
+    
+    cur.close()
         
 
 def reserve_check_status(room_id):
@@ -52,7 +54,8 @@ def reserve_check_status(room_id):
     status = cur.fetchone()[0]
     if status =="occupied":
         return False
-        
+
+    cur.close()    
     return True
 
 
@@ -68,7 +71,7 @@ def dashboard():
     rooms = cur.fetchall()
     cur.close()
     return render_template('dashboard.html', occupied=occupied, revenue=revenue, rooms=rooms)
-
+    
 
 
 #:( So muchhhh timeeeeee wasteeeed in this. DO NOT TOUCH, IT STOPS WORKING IF YOU DO.
@@ -79,17 +82,7 @@ def reservations():
     cur = get_cursor()
     if request.method == 'POST':
 
-        if 'room_type' in request.form:  # Add new room
-            room_type = request.form['room_type']
-            status = request.form['status']
-            price = request.form['price']
-
-            cur.execute("INSERT INTO rooms (type, status, price) VALUES (%s, %s, %s)", 
-                        (room_type, status, price))
-            db.commit()
-
-
-        elif 'book_room_id' in request.form:  # Book a room
+        if 'book_room_id' in request.form:  # Book a room
             guest_id = request.form['guest_id']
             room_id = request.form['book_room_id']
             check_in = request .form['check_in']
@@ -181,6 +174,42 @@ def staff():
     cur.close()
 
     return render_template('staff.html', staff=staff_list)
+
+#Room Room Room Room Room ROom ROOOOM 
+@app.route('/rooms', methods=['GET', 'POST'])
+def room():
+    
+    cur = get_cursor()
+    if request.method == 'POST':
+
+        if 'room_type' in request.form:  # Add new room
+            room_type = request.form['room_type']
+            status = request.form['status']
+            price = request.form['price']
+
+            cur.execute("INSERT INTO rooms (type, status, price) VALUES (%s, %s, %s)", 
+                        (room_type, status, price))
+            db.commit()
+
+        elif 'delete_room_id' in request.form:  # Delete room
+            room_id = request.form['delete_room_id']
+            try:
+                
+                cur.execute("DELETE FROM reservations WHERE room_id = %s", (room_id,))
+                cur.execute("DELETE FROM rooms WHERE id = %s", (room_id,))
+                db.commit()
+
+            except pymysql.err.IntegrityError as e:
+                print(f"Error deleting room: {e}")
+        
+
+
+
+    
+    cur.execute("SELECT * FROM rooms")
+    all_rooms = cur.fetchall()
+    cur.close()
+    return render_template('rooms.html',rooms=all_rooms)
 
 
 #Billing work, calculation and all. 

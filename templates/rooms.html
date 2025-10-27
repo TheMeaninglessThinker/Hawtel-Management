@@ -1,28 +1,32 @@
-<!DOCTYPE html>
-<html>
-<head><title>Rooms</title></head>
-<body>
-<h2>All Rooms</h2>
-<table border="1">
-<tr><th>Room No</th><th>Type</th><th>Price</th><th>Status</th></tr>
-{% for r in rooms %}
-<tr>
-  <td>{{ r.room_no }}</td>
-  <td>{{ r.room_type }}</td>
-  <td>{{ r.price_per_day }}</td>
-  <td>{{ r.status }}</td>
-</tr>
-{% endfor %}
-</table>
+{% extends 'base.html' %}
+{% block content %}
+<div class="w3-container w3-padding-64">
+  <h2>Rooms</h2>
+  <!-- Add Room Form -->
+  <h3>Add New Room</h3>
+  <form method="POST">
+    <input type="text" name="room_type" placeholder="Room Type" class="w3-input w3-border" required>
+    <select name="status" class="w3-select w3-border">
+      <option value="available">Available</option>
+      <option value="occupied">Occupied</option>
+    </select>
+    <input type="number" name="price" placeholder="Price" class="w3-input w3-border" step="0.01" required>
+    <button type="submit" class="w3-button w3-teal w3-margin-top">Add Room</button>
+  </form>
 
-<h3>Add New Room</h3>
-<form action="/add_room" method="POST">
-  Room No: <input name="room_no"><br>
-  Type: <input name="room_type"><br>
-  Price: <input name="price"><br>
-  <button type="submit">Add Room</button>
-</form>
 
-<p><a href="/">Back to Home</a></p>
-</body>
-</html>
+  <!-- Room List with Delete -->
+  <h3>Room List</h3>
+  <ul>
+    {% for room in rooms %}
+    <li>
+      {{ room[1] }} - ${{ room[3] }} ({{ room[2] }})
+      <form method="POST" style="display:inline;">
+        <input type="hidden" name="delete_room_id" value="{{ room[0] }}">
+        <button type="submit" class="w3-button w3-red w3-small" onclick="return confirm('Are you sure?')">Delete</button>
+      </form>
+    </li>
+    {% endfor %}
+  </ul>
+</div>
+{% endblock %}
