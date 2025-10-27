@@ -23,18 +23,29 @@
 
   
 
-  <!-- Room List with Delete -->
-  <h3>Room List</h3>
-  <ul>
-    {% for room in rooms %}
-    <li>
-      {{ room[1] }} - ${{ room[3] }} ({{ room[2] }})
-      <form method="POST" style="display:inline;">
-        <input type="hidden" name="delete_room_id" value="{{ room[0] }}">
-        <button type="submit" class="w3-button w3-red w3-small" onclick="return confirm('Are you sure?')">Delete</button>
-      </form>
-    </li>
-    {% endfor %}
-  </ul>
+  <table class="w3-table w3-striped w3-bordered">
+    <tr>
+      <th>Room ID</th>
+      <th>Room Name</th>
+      <th>State</th>
+      <th>Price</th>
+      <td>Action</td>
+    </tr>
+    {% for r in rooms %}
+    <tr>
+      <td>{{r[0]}}</td>
+      <td>{{r[1]}}</td>
+      <td>{{r[2]}}</td>
+      <td>{{r[3]}}</td>
+      <td>
+        <form method="POST" style="display:inline">
+          <input type="hidden" name="delete_room_id" value="{{ r[0] }}">
+          <button type="submit" class="w3-button w3-red w3-small">Delete</button>
+        </form>
+      </td>
+    </tr>
+
+  {% endfor %}
+  </table>
 </div>
 {% endblock %}

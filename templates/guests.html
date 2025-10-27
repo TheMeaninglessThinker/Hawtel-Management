@@ -9,17 +9,32 @@
     <input type="text" name="preferences" placeholder="Preferences" class="w3-input w3-border">
     <button type="submit" class="w3-button w3-teal w3-margin-top">Add Guest</button>
   </form>
-  <h3>Guest List</h3>
-  <ul>
-    {% for guest in guests %}
-    <li>
-      {{ guest[1] }} - {{ guest[2] }} 
-      <form method="POST" style="display:inline;">
-        <input type="hidden" name="delete_id" value="{{ guest[0] }}">
-        <button type="submit" class="w3-button w3-red w3-small" onclick="return confirm('Are you sure?')">Delete</button>
-      </form>
-    </li>
-    {% endfor %}
-  </ul>
+  
+
+   <table class="w3-table w3-striped w3-bordered">
+    <tr>
+      <th>Guest ID</th>
+      <th>Guest Name</th>
+      <th>Contact</th>
+      <th>ID Proof</th>
+      <td>Preferences</td>
+    </tr>
+    {% for r in guests %}
+    <tr>
+      <td>{{r[0]}}</td>
+      <td>{{r[1]}}</td>
+      <td>{{r[2]}}</td>
+      <td>{{r[3]}}</td>
+      <td>{{r[4]}}</td>
+      <td>
+        <form method="POST" style="display:inline">
+          <input type="hidden" name="delete_id" value="{{ r[0] }}">
+          <button type="submit" class="w3-button w3-red w3-small">Delete</button>
+        </form>
+      </td>
+    </tr>
+
+  {% endfor %}
+  </table>
 </div>
 {% endblock %}
