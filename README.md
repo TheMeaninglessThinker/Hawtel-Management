@@ -16,7 +16,8 @@ CREATE TABLE guests (
     name VARCHAR(100) NOT NULL,
     contact VARCHAR(20),
     id_proof VARCHAR(50),
-    preferences TEXT
+    preferences TEXT,
+    status ENUM('booked','nbooked') DEFAULT 'nbooked'
 );
 
 CREATE TABLE reservations (
